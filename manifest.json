@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NotePeeker",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "View Markdown files in a clean browser document viewer.",
   "browser_specific_settings": {
     "gecko": {

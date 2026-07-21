@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NotePeeker</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main class="panel">
+      <header class="header">
+        <img src="../components/notepeeker.png" alt="" width="28" height="28">
+        <div>
+          <h1>NotePeeker</h1>
+          <p>Markdown viewing</p>
+        </div>
+      </header>
+
+      <section class="settings" aria-label="Viewer settings">
+        <label class="setting">
+          <span class="settingText">
+            <strong>Show Markdown source</strong>
+            <small>Open files as plain `.md` text</small>
+          </span>
+          <input id="showSource" type="checkbox">
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+
+        <label class="setting">
+          <span class="settingText">
+            <strong>Offline only</strong>
+            <small>Format local `file://` files only</small>
+          </span>
+          <input id="offlineOnly" type="checkbox">
+          <span class="switch" aria-hidden="true"></span>
+        </label>
+      </section>
+
+      <p id="status" class="status" role="status" aria-live="polite">Settings saved</p>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

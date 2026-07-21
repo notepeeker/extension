@@ -11,6 +11,7 @@
   },
   "action": {
     "default_title": "NotePeeker",
+    "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "components/notepeeker.png",
       "32": "components/notepeeker.png",
@@ -22,7 +23,8 @@
     "service_worker": "background.js"
   },
   "permissions": [
-    "webNavigation"
+    "webNavigation",
+    "storage"
   ],
   "host_permissions": [
     "http://*/*",

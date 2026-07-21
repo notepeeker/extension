@@ -11,6 +11,8 @@ This first stage focuses on Markdown files only.
 - Fetches remote or local Markdown files
 - Renders headings, paragraphs, links, images, lists, blockquotes, code blocks, inline code, tables, and horizontal rules
 - Provides zoom controls, theme toggle, print, and open-raw controls
+- Provides an optional full-page-width viewer control
+- Provides popup settings for plain Markdown source and offline-only viewing
 - Leaves GitHub's rendered Markdown pages unchanged
 - Works without a build step or external runtime dependencies
 
@@ -49,6 +51,7 @@ GitHub repository pages such as `github.com/owner/repo/blob/main/README.md` are 
 NotePeeker uses the following permissions:
 
 - `webNavigation`: detects when a top-level `.md` file is opened.
+- `storage`: saves the popup settings locally in the browser.
 - `host_permissions`: allows the viewer to fetch Markdown from `http`, `https`, and `file` URLs.
 
 The extension does not collect analytics, send document contents to a server, or require an account.
@@ -64,6 +67,14 @@ The extension does not collect analytics, send document contents to a server, or
 |-- .github/
 |   `-- workflows/publish.yml
 |-- manifest.json
+|-- popup/
+|   |-- popup.css
+|   |-- popup.html
+|   `-- popup.js
+|-- source/
+|   |-- source.css
+|   |-- source.html
+|   `-- source.js
 |-- viewer/
 |   |-- viewer.css
 |   |-- viewer.html
@@ -79,6 +90,11 @@ There is no bundler in this stage. Edit the source files, then reload the extens
 The Markdown renderer is intentionally small and local. Keep changes dependency-free unless there is a clear reason to introduce a build process.
 
 The excluded host list is kept in `background.js` so site-specific native viewers can be added without changing the Markdown renderer.
+
+Click the NotePeeker toolbar icon to open settings:
+
+- **Show Markdown source** displays the original Markdown as plain text.
+- **Offline only** formats only local `file://` Markdown files and leaves remote Markdown pages unchanged.
 
 ## Contributing
 

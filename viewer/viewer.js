@@ -2,16 +2,19 @@ const ZOOM_LEVELS = [0.75, 0.9, 1, 1.1, 1.25, 1.5];
 
 const state = {
   sourceUrl: new URLSearchParams(window.location.search).get("src"),
-  zoomIndex: 2
+  zoomIndex: 2,
+  fullWidth: false
 };
 
 const elements = {
   title: document.querySelector("#documentTitle"),
   status: document.querySelector("#status"),
+  viewport: document.querySelector(".viewport"),
   page: document.querySelector("#page"),
   zoomOut: document.querySelector("#zoomOut"),
   zoomIn: document.querySelector("#zoomIn"),
   zoomValue: document.querySelector("#zoomValue"),
+  fullWidthToggle: document.querySelector("#fullWidthToggle"),
   themeToggle: document.querySelector("#themeToggle"),
   printButton: document.querySelector("#printButton"),
   rawLink: document.querySelector("#rawLink")
@@ -284,6 +287,18 @@ function setTheme(theme) {
   localStorage.setItem("notepeeker-theme", theme);
 }
 
+function setFullWidth(enabled) {
+  state.fullWidth = enabled;
+  elements.viewport.classList.toggle("fullWidth", enabled);
+  elements.fullWidthToggle.setAttribute("aria-pressed", String(enabled));
+  elements.fullWidthToggle.title = enabled ? "Use reading width" : "Use full page width";
+  elements.fullWidthToggle.setAttribute(
+    "aria-label",
+    enabled ? "Use reading width" : "Use full page width"
+  );
+  localStorage.setItem("notepeeker-full-width", String(enabled));
+}
+
 async function loadDocument() {
   if (!state.sourceUrl) {
     setStatus("No Markdown file was provided.", true);
@@ -312,6 +327,7 @@ async function loadDocument() {
 
 elements.zoomOut.addEventListener("click", () => setZoom(state.zoomIndex - 1));
 elements.zoomIn.addEventListener("click", () => setZoom(state.zoomIndex + 1));
+elements.fullWidthToggle.addEventListener("click", () => setFullWidth(!state.fullWidth));
 elements.printButton.addEventListener("click", () => window.print());
 elements.rawLink.addEventListener("click", (event) => {
   event.preventDefault();
@@ -327,6 +343,8 @@ elements.themeToggle.addEventListener("click", () => {
 
 const storedTheme = localStorage.getItem("notepeeker-theme");
 const preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+const storedFullWidth = localStorage.getItem("notepeeker-full-width") === "true";
 setTheme(storedTheme || preferredTheme);
+setFullWidth(storedFullWidth);
 setZoom(state.zoomIndex);
 loadDocument();

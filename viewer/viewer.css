@@ -135,6 +135,11 @@ a {
   padding: 72px max(16px, calc((100vw - 920px) / 2)) 32px;
 }
 
+.viewport.fullWidth {
+  padding-right: 16px;
+  padding-left: 16px;
+}
+
 .status,
 .page {
   width: min(100%, 880px);
@@ -157,6 +162,11 @@ a {
   transform-origin: top center;
   background: var(--page-bg);
   box-shadow: var(--shadow);
+}
+
+.viewport.fullWidth .status,
+.viewport.fullWidth .page {
+  width: 100%;
 }
 
 .markdown {
@@ -296,6 +306,10 @@ a {
   }
 
   .viewport {
+    padding: 68px 10px 24px;
+  }
+
+  .viewport.fullWidth {
     padding: 68px 10px 24px;
   }
 

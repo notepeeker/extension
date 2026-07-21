@@ -1,4 +1,8 @@
 const MARKDOWN_EXTENSION = ".md";
+const DEFAULT_SETTINGS = {
+  showSource: false,
+  offlineOnly: false
+};
 // GitHub already renders Markdown on these pages. Keep the native experience there.
 const EXCLUDED_HOSTNAMES = new Set([
   "github.com",
@@ -6,6 +10,10 @@ const EXCLUDED_HOSTNAMES = new Set([
   "gist.github.com"
 ]);
 const rawNavigationByTab = new Map();
+const settings = { ...DEFAULT_SETTINGS };
+const settingsReady = chrome.storage.local.get(DEFAULT_SETTINGS).then((stored) => {
+  Object.assign(settings, stored);
+});
 
 function parseUrl(value) {
   try {
@@ -42,7 +50,77 @@ function isMarkdownUrl(value) {
   return pathname.toLowerCase().endsWith(MARKDOWN_EXTENSION);
 }
 
-chrome.webNavigation.onBeforeNavigate.addListener((details) => {
+function getExtensionDocument(value) {
+  const url = parseUrl(value);
+
+  if (!url || url.protocol !== "chrome-extension:") {
+    return null;
+  }
+
+  if (!["/viewer/viewer.html", "/source/source.html"].includes(url.pathname)) {
+    return null;
+  }
+
+  return {
+    mode: url.pathname.startsWith("/source/") ? "source" : "viewer",
+    sourceUrl: url.searchParams.get("src")
+  };
+}
+
+function getViewerUrl(sourceUrl) {
+  return chrome.runtime.getURL(
+    `viewer/viewer.html?src=${encodeURIComponent(sourceUrl)}`
+  );
+}
+
+function getSourceUrl(sourceUrl) {
+  return chrome.runtime.getURL(
+    `source/source.html?src=${encodeURIComponent(sourceUrl)}`
+  );
+}
+
+function getDestinationUrl(sourceUrl) {
+  const url = parseUrl(sourceUrl);
+
+  if (!url || !isMarkdownUrl(sourceUrl) || isExcludedUrl(sourceUrl)) {
+    return sourceUrl;
+  }
+
+  if (settings.showSource) {
+    return getSourceUrl(sourceUrl);
+  }
+
+  if (settings.offlineOnly && url.protocol !== "file:") {
+    return sourceUrl;
+  }
+
+  return getViewerUrl(sourceUrl);
+}
+
+async function applySettingsToTab(tabId) {
+  const tab = await chrome.tabs.get(tabId);
+
+  if (!tab?.url) {
+    return;
+  }
+
+  const extensionDocument = getExtensionDocument(tab.url);
+
+  if (extensionDocument?.sourceUrl) {
+    const destinationUrl = getDestinationUrl(extensionDocument.sourceUrl);
+
+    if (destinationUrl !== tab.url) {
+      chrome.tabs.update(tabId, { url: destinationUrl });
+    }
+    return;
+  }
+
+  if (isMarkdownUrl(tab.url)) {
+    chrome.tabs.reload(tabId);
+  }
+}
+
+chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   if (details.frameId !== 0 || !isMarkdownUrl(details.url)) {
     return;
   }
@@ -57,31 +135,69 @@ chrome.webNavigation.onBeforeNavigate.addListener((details) => {
     return;
   }
 
-  const viewerUrl = chrome.runtime.getURL(
-    `viewer/viewer.html?src=${encodeURIComponent(details.url)}`
-  );
+  await settingsReady;
 
-  if (details.url === viewerUrl) {
+  const destinationUrl = getDestinationUrl(details.url);
+
+  if (destinationUrl === details.url) {
     return;
   }
 
-  chrome.tabs.update(details.tabId, { url: viewerUrl });
+  chrome.tabs.update(details.tabId, { url: destinationUrl });
 });
 
-chrome.runtime.onMessage.addListener((message, sender) => {
-  if (message?.type !== "openRawMarkdown" || !sender.tab?.id || !isMarkdownUrl(message.url)) {
+async function openRawMarkdown(message, sender) {
+  let tabId = sender.tab?.id;
+
+  if (!Number.isInteger(tabId)) {
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    tabId = activeTab?.id;
+  }
+
+  if (!Number.isInteger(tabId)) {
     return;
   }
 
   if (isExcludedUrl(message.url)) {
-    chrome.tabs.update(sender.tab.id, { url: message.url });
+    chrome.tabs.update(tabId, { url: message.url });
     return;
   }
 
-  rawNavigationByTab.set(sender.tab.id, message.url);
-  chrome.tabs.update(sender.tab.id, { url: message.url });
+  rawNavigationByTab.set(tabId, message.url);
+  chrome.tabs.update(tabId, { url: message.url });
+}
+
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message?.type === "settingsChanged" && Number.isInteger(message.tabId)) {
+    Object.assign(settings, {
+      showSource: Boolean(message.settings?.showSource),
+      offlineOnly: Boolean(message.settings?.offlineOnly)
+    });
+    applySettingsToTab(message.tabId).catch(() => {});
+    return;
+  }
+
+  if (message?.type !== "openRawMarkdown" || !isMarkdownUrl(message.url)) {
+    return;
+  }
+
+  openRawMarkdown(message, sender).catch(() => {});
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   rawNavigationByTab.delete(tabId);
+});
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "local") {
+    return;
+  }
+
+  if (changes.showSource) {
+    settings.showSource = Boolean(changes.showSource.newValue);
+  }
+
+  if (changes.offlineOnly) {
+    settings.offlineOnly = Boolean(changes.offlineOnly.newValue);
+  }
 });

@@ -28,7 +28,7 @@ jobs:
           rm -rf package notepeeker-extension.zip
           mkdir package
           cp manifest.json background.js LICENSE README.md package/
-          cp -R viewer components package/
+          cp -R viewer source components package/
           (
             cd package
             zip -r ../notepeeker-extension.zip .

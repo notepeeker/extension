@@ -1,217 +1,93 @@
-# NotePeeker Extension
+# NotePeeker
 
-> Instantly transform Markdown files into beautiful, readable documents directly in your browser.
+NotePeeker is a lightweight browser extension for viewing Markdown files directly in the browser. It turns raw `.md` files into a clean document view with a compact toolbar and a centered page layout, similar in spirit to how browsers open PDFs.
 
-## 📖 Overview
+## Current Scope
 
-**NotePeeker Extension** is a browser extension that automatically detects when a Markdown (`.md`) file is opened and renders it as a polished HTML page instead of showing raw Markdown syntax.
+This first stage focuses on Markdown files only.
 
-Whether you're viewing project documentation, personal notes, or Markdown files hosted online, NotePeeker provides a clean, distraction-free reading experience with no additional setup.
+- Detects top-level `.md` page navigations
+- Opens a dedicated extension viewer
+- Fetches remote or local Markdown files
+- Renders headings, paragraphs, links, images, lists, blockquotes, code blocks, inline code, tables, and horizontal rules
+- Provides zoom controls, theme toggle, print, and open-raw controls
+- Leaves GitHub's rendered Markdown pages unchanged
+- Works without a build step or external runtime dependencies
 
-The long-term vision of **NotePeeker** is to become a universal document viewer that enhances the way users read text-based documents on the web.
+## Install From Source
 
----
+1. Clone or download this repository.
+2. Open `chrome://extensions` or `edge://extensions`.
+3. Enable Developer mode.
+4. Choose Load unpacked.
+5. Select the repository folder.
 
-## ✨ Features
+To view local `file:///` Markdown files, enable Allow access to file URLs for NotePeeker in the browser's extension details page.
 
-### Current (MVP)
+## Download Latest Release
 
-- 🔍 Automatically detects Markdown (`.md`) files
-- 📄 Renders Markdown into HTML
-- 🎨 GitHub-style Markdown rendering
-- 🌙 Light & Dark themes
-- 💻 Syntax highlighting for code blocks
-- 📑 Automatic Table of Contents
-- 📋 Copy button for code blocks
-- 🔗 Proper rendering of links and images
-- 📱 Responsive design
+Every push to `main` publishes a ready-to-load package on GitHub. Download the latest [NotePeeker extension ZIP](https://github.com/notepeeker/extension/releases/latest/download/notepeeker-extension.zip), extract it, and choose the extracted folder with **Load unpacked** in `chrome://extensions` or `edge://extensions`.
 
----
+This distribution is not published to the Chrome Web Store. The package is produced by [`.github/workflows/publish.yml`](.github/workflows/publish.yml).
 
-## 🚀 Planned Features
+## Usage
 
-### Reading Experience
+Open any direct Markdown URL:
 
-- Reading progress indicator
-- Focus mode
-- Full-screen reading mode
-- Search inside document
-- Better typography
-- Custom themes
-
-### Markdown Enhancements
-
-- Mermaid diagrams
-- KaTeX / MathJax
-- Emoji support
-- Footnotes
-- Task lists
-- Admonitions
-- Collapsible sections
-
-### Productivity
-
-- Bookmarks
-- Recently opened documents
-- Reading history
-- Export as PDF
-- Print-friendly view
-- Keyboard shortcuts
-
-### Customization
-
-- Font selection
-- Font size
-- Line spacing
-- Theme customization
-- Custom CSS
-
----
-
-# 🌍 Long-Term Vision
-
-Markdown is only the beginning.
-
-The goal is for **NotePeeker** to become a universal document viewer that automatically enhances many common document formats directly in the browser.
-
-Future supported formats may include:
-
-- 📄 Markdown (.md)
-- 📕 PDF (.pdf)
-- 📘 Microsoft Word (.docx)
-- 📙 OpenDocument (.odt)
-- 📑 Rich Text (.rtf)
-- 📋 Plain Text (.txt)
-- 📓 Jupyter Notebooks (.ipynb)
-- 📚 EPUB Books (.epub)
-
-Instead of downloading a document just to read it comfortably, NotePeeker aims to make documents beautiful and easy to read instantly.
-
----
-
-# ⚙️ How It Works
-
-```
-User opens document
-        │
-        ▼
-Extension detects supported file
-        │
-        ▼
-Fetches document
-        │
-        ▼
-Parses content
-        │
-        ▼
-Applies formatting
-        │
-        ▼
-Displays beautiful reading experience
-```
-
----
-
-# 📂 Supported URLs
-
-### Remote Files
-
-```
+```text
 https://example.com/README.md
-https://raw.githubusercontent.com/.../README.md
+https://raw.githubusercontent.com/owner/repo/main/README.md
+file:///C:/Users/me/Documents/notes.md
 ```
 
-### Local Files
+NotePeeker redirects the tab to its viewer and renders the source file as a readable document.
 
-```
-file:///Users/me/notes.md
-file:///C:/Documents/readme.md
-```
+GitHub repository pages such as `github.com/owner/repo/blob/main/README.md` are excluded because GitHub already provides a formatted Markdown view. Raw files served from `raw.githubusercontent.com` are still supported.
 
-> Local file support requires enabling **Allow access to file URLs** in the browser extension settings.
+## Permissions
 
----
+NotePeeker uses the following permissions:
 
-# 🛠️ Tech Stack
+- `webNavigation`: detects when a top-level `.md` file is opened.
+- `host_permissions`: allows the viewer to fetch Markdown from `http`, `https`, and `file` URLs.
 
-- Manifest V3
-- JavaScript / TypeScript
-- HTML
-- CSS
-- markdown-it
-- highlight.js
-- GitHub Markdown CSS
+The extension does not collect analytics, send document contents to a server, or require an account.
 
----
+## Project Structure
 
-# 📁 Project Structure
-
-```
-extension/
-│
-├── manifest.json
-├── background.js
-├── content.js
-├── viewer.html
-├── viewer.js
-├── styles/
-├── assets/
-├── icons/
-└── README.md
+```text
+.
+|-- background.js
+|-- components/
+|   |-- notepeeker.png
+|   `-- notepeeker.svg
+|-- .github/
+|   `-- workflows/publish.yml
+|-- manifest.json
+|-- viewer/
+|   |-- viewer.css
+|   |-- viewer.html
+|   `-- viewer.js
+|-- LICENSE
+`-- README.md
 ```
 
----
+## Development
 
-# 🎯 Goals
+There is no bundler in this stage. Edit the source files, then reload the extension from the browser extensions page.
 
-- Zero configuration
-- Fast rendering
-- Beautiful reading experience
-- Minimal permissions
-- Works with local and remote files
-- Open source
-- Lightweight
+The Markdown renderer is intentionally small and local. Keep changes dependency-free unless there is a clear reason to introduce a build process.
 
----
+The excluded host list is kept in `background.js` so site-specific native viewers can be added without changing the Markdown renderer.
 
-# 🗺️ Roadmap
+## Contributing
 
-## Version 1.0
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-- Markdown rendering
-- Dark mode
-- Code highlighting
-- Table of Contents
-- Responsive layout
+## Security
 
----
+Please report security concerns using the process in [SECURITY.md](SECURITY.md).
 
-## Future Enhancements:
+## License
 
-- Search
-- Copy code
-- Reading progress
-- Keyboard shortcuts
-- Custom themes
-- PDF support
-- Better caching
-- Offline viewing
-- Export options
-- DOCX support
-- EPUB support
-- Rich Text support
-- Universal document viewer
-
----
-
-# 🤝 Contributing
-
-Contributions, ideas, and feature requests are always welcome.
-
-If you'd like to help improve NotePeeker, feel free to open an issue or submit a pull request.
-
----
-
-# 📜 License
-
-MIT License
+MIT. See [LICENSE](LICENSE).

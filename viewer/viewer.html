@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>NotePeeker</title>
+    <link rel="stylesheet" href="viewer.css">
+  </head>
+  <body>
+    <header class="toolbar" role="banner">
+      <div class="brand">
+        <img src="../components/notepeeker.png" alt="" width="24" height="24">
+        <span id="documentTitle">NotePeeker</span>
+      </div>
+
+      <div class="toolbarActions" aria-label="Viewer controls">
+        <button id="zoomOut" class="iconButton" type="button" title="Zoom out" aria-label="Zoom out">&#8722;</button>
+        <output id="zoomValue" class="zoomValue" aria-live="polite">100%</output>
+        <button id="zoomIn" class="iconButton" type="button" title="Zoom in" aria-label="Zoom in">+</button>
+        <button id="themeToggle" class="iconButton" type="button" title="Toggle theme" aria-label="Toggle theme">&#9680;</button>
+        <button id="printButton" class="iconButton" type="button" title="Print" aria-label="Print">&#9113;</button>
+        <a id="rawLink" class="iconButton" title="Open raw file" aria-label="Open raw file" rel="noreferrer" href="#">&#8599;</a>
+      </div>
+    </header>
+
+    <main class="viewport">
+      <section id="status" class="status" aria-live="polite">Loading document...</section>
+      <article id="page" class="page markdown" hidden></article>
+    </main>
+
+    <script src="viewer.js"></script>
+  </body>
+</html>

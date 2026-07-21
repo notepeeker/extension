@@ -1,0 +1,51 @@
+name: Publish extension
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+
+      - name: Validate extension files
+        run: |
+          node --check background.js
+          node --check viewer/viewer.js
+          node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))"
+
+      - name: Package extension
+        run: |
+          rm -rf package notepeeker-extension.zip
+          mkdir package
+          cp manifest.json background.js LICENSE README.md package/
+          cp -R viewer components package/
+          (
+            cd package
+            zip -r ../notepeeker-extension.zip .
+          )
+
+      - name: Publish latest GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: latest
+          target_commitish: ${{ github.sha }}
+          name: NotePeeker latest
+          body: |
+            Download `notepeeker-extension.zip`, extract it, and load the extracted folder as an unpacked extension in Chrome or Edge.
+
+            This release is built automatically from the latest push to `main`.
+          files: notepeeker-extension.zip
+          overwrite_files: true
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

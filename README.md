@@ -66,7 +66,12 @@ The extension does not collect analytics, send document contents to a server, or
 |-- background.js
 |-- components/
 |   |-- notepeeker.png
-|   `-- notepeeker.svg
+|   |-- notepeeker.svg
+|   `-- icons/
+|       |-- notepeeker-16.png
+|       |-- notepeeker-32.png
+|       |-- notepeeker-48.png
+|       `-- notepeeker-128.png
 |-- .github/
 |   `-- workflows/publish.yml
 |-- manifest.json

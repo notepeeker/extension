@@ -256,6 +256,12 @@ function renderMarkdown(markdown) {
   return html.join("\n");
 }
 
+function renderMarkdownNodes(markdown) {
+  // Parse the renderer's escaped, generated markup in an inert document before insertion.
+  const parsedDocument = new DOMParser().parseFromString(renderMarkdown(markdown), "text/html");
+  return Array.from(parsedDocument.body.childNodes);
+}
+
 function getFileName(sourceUrl) {
   try {
     const url = new URL(sourceUrl);
@@ -316,7 +322,7 @@ async function loadDocument() {
     }
 
     const markdown = await response.text();
-    elements.page.innerHTML = renderMarkdown(markdown);
+    elements.page.replaceChildren(...renderMarkdownNodes(markdown));
     elements.status.hidden = true;
     elements.page.hidden = false;
     document.title = `${getFileName(state.sourceUrl)} - NotePeeker`;

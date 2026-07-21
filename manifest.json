@@ -14,19 +14,19 @@
     }
   },
   "icons": {
-    "16": "components/notepeeker.png",
-    "32": "components/notepeeker.png",
-    "48": "components/notepeeker.png",
-    "128": "components/notepeeker.png"
+    "16": "components/icons/notepeeker-16.png",
+    "32": "components/icons/notepeeker-32.png",
+    "48": "components/icons/notepeeker-48.png",
+    "128": "components/icons/notepeeker-128.png"
   },
   "action": {
     "default_title": "NotePeeker",
     "default_popup": "popup/popup.html",
     "default_icon": {
-      "16": "components/notepeeker.png",
-      "32": "components/notepeeker.png",
-      "48": "components/notepeeker.png",
-      "128": "components/notepeeker.png"
+      "16": "components/icons/notepeeker-16.png",
+      "32": "components/icons/notepeeker-32.png",
+      "48": "components/icons/notepeeker-48.png",
+      "128": "components/icons/notepeeker-128.png"
     }
   },
   "background": {

@@ -53,6 +53,7 @@ NotePeeker uses the following permissions:
 - `webNavigation`: detects when a top-level `.md` file is opened.
 - `storage`: saves the popup settings locally in the browser.
 - `host_permissions`: allows the viewer to fetch Markdown from `http`, `https`, and `file` URLs.
+- `web_accessible_resources`: allows Chrome to open the packaged viewer pages when a Markdown URL is redirected.
 
 The extension does not collect analytics, send document contents to a server, or require an account.
 

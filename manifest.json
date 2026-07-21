@@ -30,5 +30,18 @@
     "http://*/*",
     "https://*/*",
     "file:///*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "viewer/*",
+        "source/*"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file:///*"
+      ]
+    }
   ]
 }

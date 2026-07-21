@@ -11,8 +11,11 @@ const EXCLUDED_HOSTNAMES = new Set([
 ]);
 const rawNavigationByTab = new Map();
 const settings = { ...DEFAULT_SETTINGS };
-const settingsReady = chrome.storage.local.get(DEFAULT_SETTINGS).then((stored) => {
-  Object.assign(settings, stored);
+const settingsReady = new Promise((resolve) => {
+  chrome.storage.local.get(DEFAULT_SETTINGS, (stored) => {
+    Object.assign(settings, stored || {});
+    resolve();
+  });
 });
 
 function parseUrl(value) {
@@ -53,7 +56,7 @@ function isMarkdownUrl(value) {
 function getExtensionDocument(value) {
   const url = parseUrl(value);
 
-  if (!url || url.protocol !== "chrome-extension:") {
+  if (!url || !["chrome-extension:", "moz-extension:"].includes(url.protocol)) {
     return null;
   }
 
@@ -97,8 +100,20 @@ function getDestinationUrl(sourceUrl) {
   return getViewerUrl(sourceUrl);
 }
 
+function getTab(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.get(tabId, (tab) => resolve(tab || null));
+  });
+}
+
+function getActiveTab() {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => resolve(tabs?.[0] || null));
+  });
+}
+
 async function applySettingsToTab(tabId) {
-  const tab = await chrome.tabs.get(tabId);
+  const tab = await getTab(tabId);
 
   if (!tab?.url) {
     return;
@@ -150,8 +165,7 @@ async function openRawMarkdown(message, sender) {
   let tabId = sender.tab?.id;
 
   if (!Number.isInteger(tabId)) {
-    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    tabId = activeTab?.id;
+    tabId = (await getActiveTab())?.id;
   }
 
   if (!Number.isInteger(tabId)) {

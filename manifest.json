@@ -3,6 +3,16 @@
   "name": "NotePeeker",
   "version": "0.2.0",
   "description": "View Markdown files in a clean browser document viewer.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "notepeeker@notepeeker.org",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
   "icons": {
     "16": "components/notepeeker.png",
     "32": "components/notepeeker.png",
@@ -20,6 +30,9 @@
     }
   },
   "background": {
+    "scripts": [
+      "background.js"
+    ],
     "service_worker": "background.js"
   },
   "permissions": [

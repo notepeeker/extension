@@ -24,13 +24,15 @@ This first stage focuses on Markdown files only.
 4. Choose Load unpacked.
 5. Select the repository folder.
 
+The same unpacked folder can be loaded in Firefox from `about:debugging` by choosing **This Firefox**, then **Load Temporary Add-on** and selecting `manifest.json`.
+
 To view local `file:///` Markdown files, enable Allow access to file URLs for NotePeeker in the browser's extension details page.
 
 ## Download Latest Release
 
-Every push to `main` publishes a ready-to-load package on GitHub. Download the latest [NotePeeker extension ZIP](https://github.com/notepeeker/extension/releases/latest/download/notepeeker-extension.zip), extract it, and choose the extracted folder with **Load unpacked** in `chrome://extensions` or `edge://extensions`.
+Every push to `main` publishes a ready-to-load package on GitHub. Download the latest [NotePeeker extension ZIP](https://github.com/notepeeker/extension/releases/latest/download/notepeeker-extension.zip), extract it, and choose the extracted folder with **Load unpacked** in `chrome://extensions`, `edge://extensions`, or Firefox's `about:debugging`.
 
-This distribution is not published to the Chrome Web Store. The package is produced by [`.github/workflows/publish.yml`](.github/workflows/publish.yml).
+This distribution is not published to the Chrome Web Store or Mozilla Add-ons. The package is produced by [`.github/workflows/publish.yml`](.github/workflows/publish.yml).
 
 ## Usage
 

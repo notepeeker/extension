@@ -41,7 +41,7 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: NotePeeker latest
           body: |
-            Download `notepeeker-extension.zip`, extract it, and load the extracted folder as an unpacked extension in Chrome or Edge.
+            Download `notepeeker-extension.zip`, extract it, and load the extracted folder as an unpacked extension in Chrome, Edge, or Firefox.
 
             This release is built automatically from the latest push to `main`.
           files: notepeeker-extension.zip

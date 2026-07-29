@@ -1,17 +1,18 @@
 # NotePeeker
 
-NotePeeker is a lightweight browser extension for viewing Markdown files directly in the browser. It turns raw `.md` files into a clean document view with a compact toolbar and a centered page layout, similar in spirit to how browsers open PDFs.
+NotePeeker is a lightweight browser extension for viewing Markdown and EPUB files directly in the browser. It turns raw documents into a clean document view with a compact toolbar and a centered page layout, similar in spirit to how browsers open PDFs.
 
 ## Current Scope
 
-This first stage focuses on Markdown files only.
+This first stage focuses on Markdown and basic EPUB files.
 
-- Detects top-level `.md` page navigations
+- Detects top-level `.md` and `.epub` page navigations
 - Opens a dedicated extension viewer
 - Fetches remote or local Markdown files
 - Renders headings, paragraphs, links, images, lists, blockquotes, code blocks, inline code, tables, and horizontal rules
 - Provides zoom controls, theme toggle, print, and open-raw controls
 - Provides an optional full-page-width viewer control
+- Provides a basic EPUB reader with chapter navigation and local images
 - Provides popup settings for plain Markdown source and offline-only viewing
 - Leaves GitHub's rendered Markdown pages unchanged
 - Works without a build step or external runtime dependencies
@@ -24,13 +25,13 @@ This first stage focuses on Markdown files only.
 4. Choose Load unpacked.
 5. Select the repository folder.
 
-The same unpacked folder can be loaded in Firefox from `about:debugging` by choosing **This Firefox**, then **Load Temporary Add-on** and selecting `manifest.json`.
+The root folder uses Chrome's Manifest V3 service worker format. The GitHub workflow also creates a Firefox-ready ZIP with `manifest.firefox.json`; use that ZIP for `about:debugging` or an AMO submission.
 
 To view local `file:///` Markdown files, enable Allow access to file URLs for NotePeeker in the browser's extension details page.
 
 ## Download Latest Release
 
-Every push to `main` publishes a ready-to-load package on GitHub. Download the latest [NotePeeker extension ZIP](https://github.com/notepeeker/extension/releases/latest/download/notepeeker-extension.zip), extract it, and choose the extracted folder with **Load unpacked** in `chrome://extensions`, `edge://extensions`, or Firefox's `about:debugging`.
+Every push to `main` publishes ready-to-load packages on GitHub. Download the [Chrome ZIP](https://github.com/notepeeker/extension/releases/latest/download/notepeeker-chrome.zip) or [Firefox ZIP](https://github.com/notepeeker/extension/releases/latest/download/notepeeker-firefox.zip), extract it, and choose the extracted folder with **Load unpacked** in Chrome or `about:debugging` in Firefox.
 
 This distribution is not published to the Chrome Web Store or Mozilla Add-ons. The package is produced by [`.github/workflows/publish.yml`](.github/workflows/publish.yml).
 
@@ -42,20 +43,23 @@ Open any direct Markdown URL:
 https://example.com/README.md
 https://raw.githubusercontent.com/owner/repo/main/README.md
 file:///C:/Users/me/Documents/notes.md
+https://example.com/books/book.epub
 ```
 
 NotePeeker redirects the tab to its viewer and renders the source file as a readable document.
 
 GitHub repository pages such as `github.com/owner/repo/blob/main/README.md` are excluded because GitHub already provides a formatted Markdown view. Raw files served from `raw.githubusercontent.com` are still supported.
 
+EPUB support covers standard EPUB packages with an OPF manifest, spine chapters, XHTML content, and packaged images. DRM-protected books, embedded scripts, and advanced EPUB layout features are not supported.
+
 ## Permissions
 
 NotePeeker uses the following permissions:
 
-- `webNavigation`: detects when a top-level `.md` file is opened.
+- `webNavigation`: detects when a top-level `.md` or `.epub` file is opened.
 - `storage`: saves the popup settings locally in the browser.
-- `host_permissions`: allows the viewer to fetch Markdown from `http`, `https`, and `file` URLs.
-- `web_accessible_resources`: allows Chrome to open the packaged viewer pages when a Markdown URL is redirected.
+- `host_permissions`: allows the viewers to fetch Markdown and EPUB files from `http`, `https`, and `file` URLs.
+- `web_accessible_resources`: allows the packaged viewer pages to open when a supported document URL is redirected.
 
 The extension does not collect analytics, send document contents to a server, or require an account.
 
@@ -65,8 +69,7 @@ The extension does not collect analytics, send document contents to a server, or
 .
 |-- background.js
 |-- components/
-|   |-- notepeeker.png
-|   |-- notepeeker.svg
+|   |-- notepeeker_logo.png
 |   `-- icons/
 |       |-- notepeeker-16.png
 |       |-- notepeeker-32.png
@@ -75,10 +78,15 @@ The extension does not collect analytics, send document contents to a server, or
 |-- .github/
 |   `-- workflows/publish.yml
 |-- manifest.json
+|-- manifest.firefox.json
 |-- popup/
 |   |-- popup.css
 |   |-- popup.html
 |   `-- popup.js
+|-- epub/
+|   |-- epub.css
+|   |-- epub.html
+|   `-- epub.js
 |-- source/
 |   |-- source.css
 |   |-- source.html
@@ -87,6 +95,9 @@ The extension does not collect analytics, send document contents to a server, or
 |   |-- viewer.css
 |   |-- viewer.html
 |   `-- viewer.js
+|-- vendor/
+|   |-- jszip.min.js
+|   `-- JSZIP_LICENSE.txt
 |-- LICENSE
 `-- README.md
 ```

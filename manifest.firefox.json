@@ -3,6 +3,16 @@
   "name": "NotePeeker",
   "version": "0.3.0",
   "description": "View Markdown and EPUB files in a clean browser document viewer.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "notepeeker@notepeeker.org",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  },
   "icons": {
     "16": "components/icons/notepeeker-16.png",
     "32": "components/icons/notepeeker-32.png",
@@ -20,7 +30,9 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "scripts": [
+      "background.js"
+    ]
   },
   "permissions": [
     "webNavigation",

@@ -1,0 +1,293 @@
+:root {
+  color-scheme: light;
+  --toolbar-bg: #303236;
+  --toolbar-border: #1f2023;
+  --toolbar-text: #f6f7f8;
+  --canvas-bg: #a6abb2;
+  --page-bg: #ffffff;
+  --page-text: #202124;
+  --muted-text: #60646c;
+  --rule: #d8dce2;
+  --accent: #2d7d46;
+  --shadow: 0 2px 10px rgb(28 32 36 / 24%);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --toolbar-bg: #1f2125;
+  --toolbar-border: #111215;
+  --toolbar-text: #f3f4f6;
+  --canvas-bg: #515760;
+  --page-bg: #1f2329;
+  --page-text: #e8eaed;
+  --muted-text: #aeb4bd;
+  --rule: #3b4149;
+  --accent: #78c88a;
+  --shadow: 0 2px 14px rgb(0 0 0 / 36%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: var(--canvas-bg);
+  color: var(--page-text);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.toolbar {
+  position: fixed;
+  z-index: 2;
+  inset: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 6px 10px 6px 12px;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--toolbar-border);
+  color: var(--toolbar-text);
+  gap: 12px;
+}
+
+.brand {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.brand img {
+  display: block;
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+#bookTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.iconButton,
+.chapterValue {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  height: 34px;
+  border-radius: 4px;
+  color: var(--toolbar-text);
+  font-size: 15px;
+  line-height: 1;
+}
+
+.iconButton {
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+}
+
+.iconButton:hover:not(:disabled),
+.iconButton:focus-visible {
+  background: rgb(255 255 255 / 12%);
+  border-color: rgb(255 255 255 / 18%);
+  outline: none;
+}
+
+.iconButton:disabled {
+  cursor: default;
+  opacity: 0.38;
+}
+
+.chapterValue {
+  min-width: 52px;
+  color: rgb(255 255 255 / 82%);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.viewport {
+  height: 100%;
+  overflow: auto;
+  padding: 72px max(16px, calc((100vw - 920px) / 2)) 32px;
+}
+
+.viewport.fullWidth {
+  padding-right: 16px;
+  padding-left: 16px;
+}
+
+.status,
+.page {
+  width: min(100%, 880px);
+  margin: 0 auto;
+}
+
+.status {
+  min-height: 180px;
+  padding: 36px;
+  border-radius: 4px;
+  background: var(--page-bg);
+  box-shadow: var(--shadow);
+  color: var(--muted-text);
+}
+
+.viewport.fullWidth .status,
+.viewport.fullWidth .page {
+  width: 100%;
+}
+
+.page {
+  min-height: calc(100vh - 112px);
+  padding: clamp(28px, 6vw, 72px);
+  background: var(--page-bg);
+  box-shadow: var(--shadow);
+}
+
+.epubPage {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.epubPage > :first-child {
+  margin-top: 0;
+}
+
+.epubPage > :last-child {
+  margin-bottom: 0;
+}
+
+.epubPage h1,
+.epubPage h2,
+.epubPage h3,
+.epubPage h4,
+.epubPage h5,
+.epubPage h6 {
+  color: var(--page-text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.2;
+}
+
+.epubPage img {
+  max-width: 100%;
+  height: auto;
+}
+
+.epubPage table {
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+.epubPage td,
+.epubPage th {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--rule);
+}
+
+.epubPage a {
+  color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .toolbar {
+    min-height: 52px;
+  }
+
+  .iconButton,
+  .chapterValue {
+    min-width: 30px;
+    height: 32px;
+  }
+
+  .chapterValue {
+    min-width: 46px;
+  }
+
+  .viewport,
+  .viewport.fullWidth {
+    padding: 68px 10px 24px;
+  }
+
+  .page {
+    min-height: calc(100vh - 92px);
+    padding: 24px 18px;
+  }
+
+  .epubPage {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar {
+    gap: 4px;
+    padding-inline: 8px;
+  }
+
+  .brand {
+    grid-template-columns: 24px;
+    flex: 0 0 24px;
+  }
+
+  #bookTitle {
+    display: none;
+  }
+
+  .toolbarActions {
+    gap: 0;
+  }
+
+  .iconButton,
+  .chapterValue {
+    min-width: 28px;
+  }
+
+  .chapterValue {
+    min-width: 38px;
+  }
+}
+
+@media print {
+  body {
+    overflow: visible;
+    background: #ffffff;
+  }
+
+  .toolbar,
+  .status {
+    display: none;
+  }
+
+  .viewport {
+    height: auto;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .page {
+    width: auto;
+    min-height: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+}

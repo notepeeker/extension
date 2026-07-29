@@ -1,4 +1,5 @@
 const MARKDOWN_EXTENSION = ".md";
+const EPUB_EXTENSION = ".epub";
 const DEFAULT_SETTINGS = {
   showSource: false,
   offlineOnly: false
@@ -31,7 +32,7 @@ function isExcludedUrl(value) {
   return Boolean(url && EXCLUDED_HOSTNAMES.has(url.hostname.toLowerCase()));
 }
 
-function isMarkdownUrl(value) {
+function hasFileExtension(value, extension) {
   const url = parseUrl(value);
 
   if (!url) {
@@ -50,7 +51,19 @@ function isMarkdownUrl(value) {
     return false;
   }
 
-  return pathname.toLowerCase().endsWith(MARKDOWN_EXTENSION);
+  return pathname.toLowerCase().endsWith(extension);
+}
+
+function isMarkdownUrl(value) {
+  return hasFileExtension(value, MARKDOWN_EXTENSION);
+}
+
+function isEpubUrl(value) {
+  return hasFileExtension(value, EPUB_EXTENSION);
+}
+
+function isSupportedDocumentUrl(value) {
+  return isMarkdownUrl(value) || isEpubUrl(value);
 }
 
 function getExtensionDocument(value) {
@@ -60,7 +73,7 @@ function getExtensionDocument(value) {
     return null;
   }
 
-  if (!["/viewer/viewer.html", "/source/source.html"].includes(url.pathname)) {
+  if (!["/viewer/viewer.html", "/source/source.html", "/epub/epub.html"].includes(url.pathname)) {
     return null;
   }
 
@@ -82,14 +95,20 @@ function getSourceUrl(sourceUrl) {
   );
 }
 
+function getEpubUrl(sourceUrl) {
+  return chrome.runtime.getURL(
+    `epub/epub.html?src=${encodeURIComponent(sourceUrl)}`
+  );
+}
+
 function getDestinationUrl(sourceUrl) {
   const url = parseUrl(sourceUrl);
 
-  if (!url || !isMarkdownUrl(sourceUrl) || isExcludedUrl(sourceUrl)) {
+  if (!url || !isSupportedDocumentUrl(sourceUrl) || isExcludedUrl(sourceUrl)) {
     return sourceUrl;
   }
 
-  if (settings.showSource) {
+  if (isMarkdownUrl(sourceUrl) && settings.showSource) {
     return getSourceUrl(sourceUrl);
   }
 
@@ -97,12 +116,38 @@ function getDestinationUrl(sourceUrl) {
     return sourceUrl;
   }
 
+  if (isEpubUrl(sourceUrl)) {
+    return getEpubUrl(sourceUrl);
+  }
+
   return getViewerUrl(sourceUrl);
 }
 
 function getTab(tabId) {
   return new Promise((resolve) => {
-    chrome.tabs.get(tabId, (tab) => resolve(tab || null));
+    chrome.tabs.get(tabId, (tab) => {
+      // Reading lastError prevents Chrome from reporting a closed tab as an uncaught error.
+      void chrome.runtime.lastError;
+      resolve(tab || null);
+    });
+  });
+}
+
+function updateTab(tabId, updateProperties) {
+  return new Promise((resolve) => {
+    chrome.tabs.update(tabId, updateProperties, (tab) => {
+      void chrome.runtime.lastError;
+      resolve(tab || null);
+    });
+  });
+}
+
+function reloadTab(tabId) {
+  return new Promise((resolve) => {
+    chrome.tabs.reload(tabId, {}, () => {
+      void chrome.runtime.lastError;
+      resolve();
+    });
   });
 }
 
@@ -125,18 +170,18 @@ async function applySettingsToTab(tabId) {
     const destinationUrl = getDestinationUrl(extensionDocument.sourceUrl);
 
     if (destinationUrl !== tab.url) {
-      chrome.tabs.update(tabId, { url: destinationUrl });
+      await updateTab(tabId, { url: destinationUrl });
     }
     return;
   }
 
-  if (isMarkdownUrl(tab.url)) {
-    chrome.tabs.reload(tabId);
+  if (isSupportedDocumentUrl(tab.url)) {
+    await reloadTab(tabId);
   }
 }
 
 chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
-  if (details.frameId !== 0 || !isMarkdownUrl(details.url)) {
+  if (details.frameId !== 0 || !isSupportedDocumentUrl(details.url)) {
     return;
   }
 
@@ -158,7 +203,7 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
     return;
   }
 
-  chrome.tabs.update(details.tabId, { url: destinationUrl });
+  await updateTab(details.tabId, { url: destinationUrl });
 });
 
 async function openRawMarkdown(message, sender) {
@@ -173,12 +218,12 @@ async function openRawMarkdown(message, sender) {
   }
 
   if (isExcludedUrl(message.url)) {
-    chrome.tabs.update(tabId, { url: message.url });
+    await updateTab(tabId, { url: message.url });
     return;
   }
 
   rawNavigationByTab.set(tabId, message.url);
-  chrome.tabs.update(tabId, { url: message.url });
+  await updateTab(tabId, { url: message.url });
 }
 
 chrome.runtime.onMessage.addListener((message, sender) => {

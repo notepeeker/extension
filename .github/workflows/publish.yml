@@ -21,17 +21,27 @@ jobs:
         run: |
           node --check background.js
           node --check viewer/viewer.js
+          node --check epub/epub.js
           node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('manifest.firefox.json', 'utf8'))"
 
-      - name: Package extension
+      - name: Package Chrome and Firefox extensions
         run: |
-          rm -rf package notepeeker-extension.zip
-          mkdir package
-          cp manifest.json background.js LICENSE README.md package/
-          cp -R viewer source components package/
+          rm -rf chrome-package firefox-package notepeeker-chrome.zip notepeeker-firefox.zip
+          mkdir chrome-package firefox-package
+          cp manifest.json chrome-package/manifest.json
+          cp manifest.firefox.json firefox-package/manifest.json
+          cp background.js LICENSE README.md chrome-package/
+          cp background.js LICENSE README.md firefox-package/
+          cp -R viewer source epub vendor components chrome-package/
+          cp -R viewer source epub vendor components firefox-package/
           (
-            cd package
-            zip -r ../notepeeker-extension.zip .
+            cd chrome-package
+            zip -r ../notepeeker-chrome.zip .
+          )
+          (
+            cd firefox-package
+            zip -r ../notepeeker-firefox.zip .
           )
 
       - name: Publish latest GitHub release
@@ -41,10 +51,12 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: NotePeeker latest
           body: |
-            Download `notepeeker-extension.zip`, extract it, and load the extracted folder as an unpacked extension in Chrome, Edge, or Firefox.
+            Download `notepeeker-chrome.zip` for Chrome or `notepeeker-firefox.zip` for Firefox. Extract the selected ZIP and load the extracted folder as an unpacked extension.
 
             This release is built automatically from the latest push to `main`.
-          files: notepeeker-extension.zip
+          files: |
+            notepeeker-chrome.zip
+            notepeeker-firefox.zip
           overwrite_files: true
           make_latest: true
         env:

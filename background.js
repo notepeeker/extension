@@ -112,12 +112,12 @@ function getDestinationUrl(sourceUrl) {
     return getSourceUrl(sourceUrl);
   }
 
-  if (settings.offlineOnly && url.protocol !== "file:") {
-    return sourceUrl;
+  if (isEpubUrl(sourceUrl)) {
+    return url.protocol === "file:" ? getEpubUrl(sourceUrl) : sourceUrl;
   }
 
-  if (isEpubUrl(sourceUrl)) {
-    return getEpubUrl(sourceUrl);
+  if (settings.offlineOnly && url.protocol !== "file:") {
+    return sourceUrl;
   }
 
   return getViewerUrl(sourceUrl);
@@ -145,6 +145,15 @@ function updateTab(tabId, updateProperties) {
 function reloadTab(tabId) {
   return new Promise((resolve) => {
     chrome.tabs.reload(tabId, {}, () => {
+      void chrome.runtime.lastError;
+      resolve();
+    });
+  });
+}
+
+function cancelDownload(downloadId) {
+  return new Promise((resolve) => {
+    chrome.downloads.cancel(downloadId, () => {
       void chrome.runtime.lastError;
       resolve();
     });
@@ -206,6 +215,24 @@ chrome.webNavigation.onBeforeNavigate.addListener(async (details) => {
   await updateTab(details.tabId, { url: destinationUrl });
 });
 
+chrome.downloads.onCreated.addListener(async (item) => {
+  const sourceUrl = parseUrl(item.url);
+
+  if (!isEpubUrl(item.url) || sourceUrl?.protocol !== "file:" || !Number.isInteger(item.tabId) || item.tabId < 0) {
+    return;
+  }
+
+  await settingsReady;
+  const destinationUrl = getDestinationUrl(item.url);
+
+  if (destinationUrl === item.url) {
+    return;
+  }
+
+  await cancelDownload(item.id);
+  await updateTab(item.tabId, { url: destinationUrl });
+});
+
 async function openRawMarkdown(message, sender) {
   let tabId = sender.tab?.id;
 
@@ -226,6 +253,23 @@ async function openRawMarkdown(message, sender) {
   await updateTab(tabId, { url: message.url });
 }
 
+async function openEpub(message, sender) {
+  const sourceUrl = parseUrl(message.url);
+
+  if (!isEpubUrl(message.url) || sourceUrl?.protocol !== "file:") {
+    return;
+  }
+
+  const tabId = sender.tab?.id;
+
+  if (!Number.isInteger(tabId)) {
+    return;
+  }
+
+  await settingsReady;
+  await updateTab(tabId, { url: getDestinationUrl(message.url) });
+}
+
 chrome.runtime.onMessage.addListener((message, sender) => {
   if (message?.type === "settingsChanged" && Number.isInteger(message.tabId)) {
     Object.assign(settings, {
@@ -233,6 +277,11 @@ chrome.runtime.onMessage.addListener((message, sender) => {
       offlineOnly: Boolean(message.settings?.offlineOnly)
     });
     applySettingsToTab(message.tabId).catch(() => {});
+    return;
+  }
+
+  if (message?.type === "openEpub") {
+    openEpub(message, sender).catch(() => {});
     return;
   }
 

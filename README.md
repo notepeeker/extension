@@ -6,13 +6,13 @@ NotePeeker is a lightweight browser extension for viewing Markdown and EPUB file
 
 This first stage focuses on Markdown and basic EPUB files.
 
-- Detects top-level `.md` and `.epub` page navigations
+- Detects top-level `.md` page navigations and local `file://` EPUB files
 - Opens a dedicated extension viewer
 - Fetches remote or local Markdown files
 - Renders headings, paragraphs, links, images, lists, blockquotes, code blocks, inline code, tables, and horizontal rules
 - Provides zoom controls, theme toggle, print, and open-raw controls
 - Provides an optional full-page-width viewer control
-- Provides a basic EPUB reader with chapter navigation and local images
+- Provides a basic offline EPUB reader with chapter navigation and local images
 - Provides popup settings for plain Markdown source and offline-only viewing
 - Leaves GitHub's rendered Markdown pages unchanged
 - Works without a build step or external runtime dependencies
@@ -43,22 +43,23 @@ Open any direct Markdown URL:
 https://example.com/README.md
 https://raw.githubusercontent.com/owner/repo/main/README.md
 file:///C:/Users/me/Documents/notes.md
-https://example.com/books/book.epub
+file:///C:/Users/me/Documents/books/book.epub
 ```
 
 NotePeeker redirects the tab to its viewer and renders the source file as a readable document.
 
 GitHub repository pages such as `github.com/owner/repo/blob/main/README.md` are excluded because GitHub already provides a formatted Markdown view. Raw files served from `raw.githubusercontent.com` are still supported.
 
-EPUB support covers standard EPUB packages with an OPF manifest, spine chapters, XHTML content, and packaged images. DRM-protected books, embedded scripts, and advanced EPUB layout features are not supported.
+EPUB support is offline-only and covers local `file://` books with an OPF manifest, spine chapters, XHTML content, and packaged images. Remote EPUB links are left unchanged. DRM-protected books, embedded scripts, and advanced EPUB layout features are not supported.
 
 ## Permissions
 
 NotePeeker uses the following permissions:
 
-- `webNavigation`: detects when a top-level `.md` or `.epub` file is opened.
+- `webNavigation`: detects top-level `.md` files and local `file://` EPUB files.
 - `storage`: saves the popup settings locally in the browser.
-- `host_permissions`: allows the viewers to fetch Markdown and EPUB files from `http`, `https`, and `file` URLs.
+- `downloads`: intercepts browsers that treat direct EPUB URLs as downloads so they can be opened in the reader.
+- `host_permissions`: allows the viewers to fetch Markdown and local EPUB files from `http`, `https`, and `file` URLs.
 - `web_accessible_resources`: allows the packaged viewer pages to open when a supported document URL is redirected.
 
 The extension does not collect analytics, send document contents to a server, or require an account.
@@ -68,6 +69,7 @@ The extension does not collect analytics, send document contents to a server, or
 ```text
 .
 |-- background.js
+|-- content.js
 |-- components/
 |   |-- notepeeker_logo.png
 |   `-- icons/

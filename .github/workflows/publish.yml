@@ -20,6 +20,7 @@ jobs:
       - name: Validate extension files
         run: |
           node --check background.js
+          node --check content.js
           node --check viewer/viewer.js
           node --check epub/epub.js
           node -e "JSON.parse(require('fs').readFileSync('manifest.json', 'utf8'))"
@@ -31,8 +32,8 @@ jobs:
           mkdir chrome-package firefox-package
           cp manifest.json chrome-package/manifest.json
           cp manifest.firefox.json firefox-package/manifest.json
-          cp background.js LICENSE README.md chrome-package/
-          cp background.js LICENSE README.md firefox-package/
+          cp background.js content.js LICENSE README.md chrome-package/
+          cp background.js content.js LICENSE README.md firefox-package/
           cp -R viewer source epub vendor components chrome-package/
           cp -R viewer source epub vendor components firefox-package/
           (

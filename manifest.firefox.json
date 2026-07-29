@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NotePeeker",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "View Markdown and EPUB files in a clean browser document viewer.",
   "browser_specific_settings": {
     "gecko": {
@@ -36,12 +36,26 @@
   },
   "permissions": [
     "webNavigation",
-    "storage"
+    "storage",
+    "downloads"
   ],
   "host_permissions": [
     "http://*/*",
     "https://*/*",
     "file:///*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "file:///*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
   ],
   "web_accessible_resources": [
     {
